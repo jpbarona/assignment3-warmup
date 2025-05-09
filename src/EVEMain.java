@@ -9,38 +9,52 @@ public class EVEMain {
     private static final String KEY_VALUE_SEPARATOR = ":";
     private static final String VALUES_SEPARATOR = ",";
 
-    public static final String COLOR = "color";
-    public static final String ENGINE = "engine";
-    public static final String MANUFACTURER = "manufacturer";
-    public static final String TYPE = "type";
-    public static final String VEHICLE_ID = "vehicle_id";
-    public static final String WHEELS = "wheels";
-    public static final ArrayList<String> FIELDS_LIST = new ArrayList<>(
-            Arrays.asList(COLOR, ENGINE, MANUFACTURER, TYPE, VEHICLE_ID, WHEELS)
-    );
+    private static final int KV_LIST_DEFAULT_SIZE = 5;
 
 
 
     private static void processLineFeed() {
             Scanner reader = new Scanner(System.in);
             boolean justReceivedEntry = false;
-            ArrayList<String[]> keyValuesList = new ArrayList<>();
+            ArrayList<String[]> keyValuesList = new ArrayList<>(KV_LIST_DEFAULT_SIZE);
+            ArrayList<Vehicle> vehiclesList = new ArrayList<>();
+
             while (reader.hasNextLine()) {
                 String line = reader.nextLine();
                 if (line.isBlank()) {
                     if (justReceivedEntry)
                     {
-                        Vehicle vehicle = new Vehicle(keyValuesList);
-                        vehicle.printVehicle();
-                        keyValuesList.clear();
+                        addVehicle(keyValuesList, vehiclesList);
                         justReceivedEntry = false;
                     }
                     continue;
                 }
-                checkLine(line);
+                if(!lineIsValid(line)) {continue;}
                 addKeyValueToList(line, keyValuesList);
                 justReceivedEntry = true;
         }
+
+        if (!vehiclesList.isEmpty() && justReceivedEntry) {
+            addVehicle(keyValuesList, vehiclesList);
+        }
+        vehiclesList.sort(Comparator.comparingInt(Vehicle::getVehicleId));
+        printAllVehicles(vehiclesList);
+    }
+
+    private static void printAllVehicles(ArrayList<Vehicle> vehiclesList) {
+        int lastIndex = vehiclesList.size()-1;
+        for (int i = 0; i < vehiclesList.size(); i++) {
+            Vehicle vehicle = vehiclesList.get(i);
+            vehicle.printVehicle();
+            if (i != lastIndex) {System.out.println();}
+        }
+    }
+
+    private static void addVehicle(ArrayList<String[]> keyValuesList, ArrayList<Vehicle> vehiclesList) {
+        Vehicle vehicle = new Vehicle(keyValuesList);
+        vehiclesList.add(vehicle);
+//        System.out.printf("%nVehicle number %d added!%n", vehicle.getVehicleId());
+        keyValuesList.clear();
     }
 
     private static void addKeyValueToList(String line, ArrayList<String[]> keyValuesList) {
@@ -55,13 +69,11 @@ public class EVEMain {
         keyValuesList.add(keyValueTuple);
     }
 
-    private static void checkLine(String line) {
-        if (!line.contains(KEY_VALUE_SEPARATOR)) {
-            throw new InvalidInputError("Line feed must contain " + KEY_VALUE_SEPARATOR);
-        }
-        if (line.split(KEY_VALUE_SEPARATOR).length != 2) {
-            throw new InvalidInputError("Line feed must contain key and value separated by a " + KEY_VALUE_SEPARATOR);
-        }
+    private static boolean lineIsValid(String line) {
+        boolean valid = true;
+        valid &= line.contains(KEY_VALUE_SEPARATOR);
+        valid &= line.split(KEY_VALUE_SEPARATOR).length == 2;
+        return valid;
     }
 
     private static String createValuesString(String value) {

@@ -83,8 +83,8 @@ public class Vehicle {
         printLineString(ENGINE_STRING, engine);
         printLineString(MANUFACTURER_STRING, manufacturer);
         printLineString(TYPE_STRING, type);
-        printLineString(VALID_STRING,validList);
         printLineString(WHEELS_STRING, wheels);
+        printLineString(VALID_STRING,validList);
 
     }
 
@@ -118,6 +118,10 @@ public class Vehicle {
 
         }
             return valuesString;
+    }
+
+    public int getVehicleId() {
+        return this.vehicleId;
     }
 
 
