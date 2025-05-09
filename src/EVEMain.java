@@ -6,8 +6,9 @@ import java.util.*;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class EVEMain {
     private static final String SPACE = " ";
-        private static final String KEY_VALUE_SEPARATOR = ":";
-        private static final String VALUES_SEPARATOR = ",";
+    private static final String KEY_VALUE_SEPARATOR = ":";
+    private static final String VALUES_SEPARATOR = ",";
+
     public static final String COLOR = "color";
     public static final String ENGINE = "engine";
     public static final String MANUFACTURER = "manufacturer";
@@ -29,11 +30,8 @@ public class EVEMain {
                 if (line.isBlank()) {
                     if (justReceivedEntry)
                     {
-                        checkValid(keyValuesList);
-                        checkCost(keyValuesList);
-
-                        keyValuesList = sortList(keyValuesList);
-                        printKeyValues(keyValuesList);
+                        Vehicle vehicle = new Vehicle(keyValuesList);
+                        vehicle.printVehicle();
                         keyValuesList.clear();
                         justReceivedEntry = false;
                     }
@@ -43,24 +41,6 @@ public class EVEMain {
                 addKeyValueToList(line, keyValuesList);
                 justReceivedEntry = true;
         }
-    }
-
-    private static ArrayList<String[]> sortList(ArrayList<String[]> keyValuesList) {
-        HashMap<String, String> keyValues = new HashMap<>();
-        ArrayList<String> keys = new ArrayList<>();
-        for (String[] keyValueTuple : keyValuesList) {
-            String key = keyValueTuple[0];
-            String value = keyValueTuple[1];
-            keyValues.put(key, value);
-            keys.add(key);
-        }
-        Collections.sort(keys); //keys beyond this point is sorted
-        ArrayList<String[]> sortedkeyValuesList = new ArrayList<>();
-        for (String key : keys) {
-            String[] keyValueTuple = {key, keyValues.get(key)};
-            sortedkeyValuesList.add(keyValueTuple);
-        }
-        return sortedkeyValuesList;
     }
 
     private static void addKeyValueToList(String line, ArrayList<String[]> keyValuesList) {
@@ -73,32 +53,6 @@ public class EVEMain {
 
         String[] keyValueTuple = {keyString, valuesString};
         keyValuesList.add(keyValueTuple);
-    }
-
-    private static void checkValid(ArrayList<String[]> keyValuesList) {
-            boolean valid = true;
-            for (String[] keyValueTuple : keyValuesList) {
-                String keyString = keyValueTuple[0];
-                valid &= (FIELDS_LIST.contains(keyString));
-            }
-            String[] validTuple = {"valid", SPACE + String.valueOf(valid)};
-            keyValuesList.add(validTuple);
-    }
-
-    private static void checkCost(ArrayList<String[]> keyValuesList) {
-        int cost = 0;
-        String[] keyValueTuple = {"cost", String.valueOf(cost)};
-        keyValuesList.add(keyValueTuple);
-    }
-
-    private static void printKeyValues(ArrayList<String[]> keyValueList) {
-        for(String[] keyValueTuple : keyValueList) {
-            String keyString = keyValueTuple[0];
-            String valuesString = keyValueTuple[1];
-            String lineString = keyString + KEY_VALUE_SEPARATOR + valuesString;
-            System.out.println(lineString);
-        }
-
     }
 
     private static void checkLine(String line) {
